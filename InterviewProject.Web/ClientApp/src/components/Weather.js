@@ -89,8 +89,14 @@ export class Weather extends Component {
 		return `${formattedDate} ${formattedTime}`;
 	}
 
+	validateWeatherData({ lat, lon }) {
+		return true;
+	}
+
 	async populateWeatherData() {
-		const response = await fetch('weatherforecast');
+		const { lat, lon } = this.state.input;
+		if (!this.validateWeatherData({ lat, lon })) return;
+		const response = await fetch(`weatherforecast?lat=${lat}&lon=${lon}`);
 		const data = await response.json();
 		this.setState({ weather: data, loading: false });
 	}
@@ -126,7 +132,7 @@ export class Weather extends Component {
 						onClick={this.handleRefreshClick}
 						style={{ borderRadius: '0 0.25rem 0.25rem 0' }}
 					>
-						Refresh data
+						Search
 					</button>
 				</div>
 			</>

@@ -26,11 +26,11 @@ namespace InterviewProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(double lat = 0, double lon = 0)
         {
             // OpenWeather API URL
-            var url = "https://api.openweathermap.org/data/2.5/forecast?lat=-11.598409&lon=-76.192075&appid=a61695628352b84bff27fdc69a5d37ad&units=metric#";
-            var cacheKey = "weatherKey";
+            var url = $"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid=a61695628352b84bff27fdc69a5d37ad&units=metric";
+            var cacheKey = url;
 
             // Weather Response
             RootModel weatherForecast = new RootModel();
