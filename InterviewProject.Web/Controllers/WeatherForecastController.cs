@@ -51,8 +51,9 @@ namespace InterviewProject.Controllers
 
                 // Set Cache Options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromSeconds(60))
-                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(180)) // 3 minutes
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(90))// 1.5 hours
+                    .SetPriority(CacheItemPriority.Normal); // removes only if it's needed
 
                 // Save Cache Value
                 _cache.Set(cacheKey, weatherForecast, cacheEntryOptions);
