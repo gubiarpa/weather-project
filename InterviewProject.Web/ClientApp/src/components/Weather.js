@@ -8,6 +8,10 @@ export class Weather extends Component {
 
 		/// State
 		this.state = {
+			input: {
+				lat: 0,
+				lon: 0
+			},
 			weather: {
 				city: {
 					coord: { lat: 0, lon: 0 },
@@ -25,12 +29,11 @@ export class Weather extends Component {
 
 		/// Binding
 		this.handleRefreshClick = this.handleRefreshClick.bind(this);
+		this.handleLatitudeChange = this.handleLatitudeChange.bind(this);
+		this.handleLongitudeChange = this.handleLongitudeChange.bind(this);
 	}
 
-	componentDidMount() {
-		this.populateWeatherData();
-	}
-
+	/// Handlers
 	handleRefreshClick() {
 		this.setState(
 			{ loading: true },
@@ -39,6 +42,34 @@ export class Weather extends Component {
 			})
 	}
 
+	handleLatitudeChange(e) {
+		e.preventDefault()
+		this.setState({
+			input: {
+				...this.state.input,
+				lat: e.target.value
+			},
+			weather: {
+				...this.state.weather
+			}
+		})
+	}
+
+	handleLongitudeChange(e) {
+		e.preventDefault()
+		this.setState({
+			input: {
+				...this.state.input,
+				lon: e.target.value
+			},
+			weather: {
+				...this.state.weather
+			}
+		})
+
+	}
+
+	/// Utils
 	convertTimestampToDateTime(timestamp) {
 		const date = new Date(timestamp * 1000); // Crear un objeto Date a partir del timestamp
 
@@ -58,14 +89,53 @@ export class Weather extends Component {
 		return `${formattedDate} ${formattedTime}`;
 	}
 
-	renderForecastsTable(weather) {
+	async populateWeatherData() {
+		const response = await fetch('weatherforecast');
+		const data = await response.json();
+		this.setState({ weather: data, loading: false });
+	}
+
+	/// Render Utils
+	renderForecastsControl() {
 		return (
 			<>
-				<div>
-					<button className={'btn btn-outline-primary'} onClick={this.handleRefreshClick}>
+				<div className={'mb-4 input-group'}>
+					{/* Latitude */}
+					<span className="input-group-text" style={{ borderRadius: '0.25rem 0 0 0.25rem', borderRight: 'none' }}>Latitude</span>
+					<input
+						type="text"
+						className="form-control"
+						aria-label="Latitude"
+						style={{ borderRadius: '0', borderRight: 'none' }}
+						value={this.state.input.lat}
+						onChange={this.handleLatitudeChange}
+					/>
+					{/* Longitude */}
+					<span className="input-group-text" style={{ borderRadius: '0', borderRight: 'none' }}>Longitude</span>
+					<input
+						type="text"
+						className="form-control"
+						aria-label="Longitude"
+						value={this.state.input.lon}
+						onChange={this.handleLongitudeChange}
+					/>
+					{/* Retrieve */}
+					<button
+						type="button"
+						className={'btn btn-secondary'}
+						onClick={this.handleRefreshClick}
+						style={{ borderRadius: '0 0.25rem 0.25rem 0' }}
+					>
 						Refresh data
 					</button>
 				</div>
+			</>
+		)
+	}
+
+	renderForecastsTable(weather) {
+		return (
+			<>
 				<table className='table table-striped' aria-labelledby="tabelLabel">
 					<thead>
 						<tr>
@@ -93,23 +163,22 @@ export class Weather extends Component {
 		);
 	}
 
-	render() {
-		let contents = this.state.loading
-			? <p><em>Loading...</em></p>
-			: this.renderForecastsTable(this.state.weather);
-
-		return (
-			<div>
-				<h1 id="tabelLabel" >Weather forecast</h1>
-				<p>This component demonstrates fetching data from the server.</p>
-				{contents}
-			</div>
-		);
+	/// Life Cycle
+	componentDidMount() {
+		this.populateWeatherData();
 	}
 
-	async populateWeatherData() {
-		const response = await fetch('weatherforecast');
-		const data = await response.json();
-		this.setState({ weather: data, loading: false });
+	render() {
+		return (
+			<div>
+				<h1 id="tabelLabel" className={'mb-4'}>Weather forecast</h1>
+				{this.renderForecastsControl()}
+				{
+					this.state.loading
+						? <p><em>Loading...</em></p>
+						: this.renderForecastsTable(this.state.weather)
+				}
+			</div>
+		);
 	}
 }
