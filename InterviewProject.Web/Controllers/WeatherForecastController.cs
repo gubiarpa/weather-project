@@ -1,6 +1,9 @@
 ﻿using InterviewProject.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -11,35 +14,53 @@ namespace InterviewProject.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly ILogger<WeatherForecastController> _logger;
         private static readonly HttpClient client = new HttpClient();
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IMemoryCache _cache;
+
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IMemoryCache cache)
         {
             _logger = logger;
+            _cache = cache;
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
             // OpenWeather API URL
-            string url = "https://api.openweathermap.org/data/2.5/forecast?lat=-11.598409&lon=-76.192075&appid=a61695628352b84bff27fdc69a5d37ad&units=metric#";
+            var url = "https://api.openweathermap.org/data/2.5/forecast?lat=-11.598409&lon=-76.192075&appid=a61695628352b84bff27fdc69a5d37ad&units=metric#";
+            var cacheKey = "weatherKey";
 
-            // HTTP GET
-            HttpResponseMessage response = await client.GetAsync(url);
+            // Weather Response
+            RootModel weatherForecast = new RootModel();
 
-            // Asegúrate de que la respuesta fue exitosa
-            response.EnsureSuccessStatusCode();
+            if (!_cache.TryGetValue(cacheKey, out weatherForecast))
+            {
+                // HTTP GET
+                HttpResponseMessage response = await client.GetAsync(url);
 
-            // Reading JSON Response
-            string responseBody = await response.Content.ReadAsStringAsync();
+                // Asegúrate de que la respuesta fue exitosa
+                response.EnsureSuccessStatusCode();
 
-            // Parse JSON Response to a RootModel object
-            var rootModel = JsonSerializer.Deserialize<RootModel>(responseBody);
+                // Reading JSON Response
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                // Parse JSON Response to a RootModel object
+                weatherForecast = JsonSerializer.Deserialize<RootModel>(responseBody);
+
+                // Set Cache Options
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(60))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+
+                // Save Cache Value
+                _cache.Set(cacheKey, weatherForecast, cacheEntryOptions);
+            }
+
 
             // Returns 200 OK
-            return Ok(rootModel);
+            return Ok(weatherForecast);
         }
     }
 }

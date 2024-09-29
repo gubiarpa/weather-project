@@ -21,6 +21,9 @@ namespace InterviewProject
         {
             services.AddControllersWithViews();
 
+            // Adds Cache Service in Memory
+            services.AddMemoryCache();
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
