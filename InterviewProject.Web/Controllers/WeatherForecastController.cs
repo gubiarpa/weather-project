@@ -29,7 +29,10 @@ namespace InterviewProject.Controllers
         public async Task<IActionResult> Get(double lat = 0, double lon = 0)
         {
             // OpenWeather API URL
-            var url = $"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid=a61695628352b84bff27fdc69a5d37ad&units=metric";
+            var urlLatitude = lat.ToString("0.000000");
+            var urlLongitude = lon.ToString("0.000000");
+            var appId = "a61695628352b84bff27fdc69a5d37ad";
+            var url = $"https://api.openweathermap.org/data/2.5/forecast?lat={urlLatitude}&lon={urlLongitude}&appid={appId}&units=metric";
             var cacheKey = url;
 
             // Weather Response

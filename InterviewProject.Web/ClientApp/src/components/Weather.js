@@ -4,13 +4,14 @@ export class Weather extends Component {
 	static displayName = Weather.name;
 
 	constructor(props) {
+		/// Base
 		super(props);
 
 		/// State
 		this.state = {
 			input: {
-				lat: 0,
-				lon: 0
+				lat: '0.000000',
+				lon: '0.000000'
 			},
 			weather: {
 				city: {
@@ -35,8 +36,25 @@ export class Weather extends Component {
 
 	/// Handlers
 	handleRefreshClick() {
+		// Formatted
+		const formattedLat = Number(this.state.input.lat).toFixed(6)
+		const formattedLon = Number(this.state.input.lon).toFixed(6)
+
+		// Validation
+		if (isNaN(formattedLat) || isNaN(formattedLon))
+			return;
+
+		// Update state
 		this.setState(
-			{ loading: true },
+			{
+				input: {
+					...this.state.input,
+					lat: formattedLat,
+					lon: formattedLon,
+				},
+				...this.state.weather,
+				loading: true
+			},
 			() => {
 				this.populateWeatherData();
 			})
@@ -66,7 +84,6 @@ export class Weather extends Component {
 				...this.state.weather
 			}
 		})
-
 	}
 
 	/// Utils
@@ -98,18 +115,31 @@ export class Weather extends Component {
 		if (!this.validateWeatherData({ lat, lon })) return;
 		const response = await fetch(`weatherforecast?lat=${lat}&lon=${lon}`);
 		const data = await response.json();
-		this.setState({ weather: data, loading: false });
+		this.setState({
+			...this.state,
+			weather: data,
+			loading: false
+		});
 	}
 
 	/// Render Utils
 	renderForecastsControl() {
 		return (
 			<>
-				<div className={'mb-4 input-group'}>
+				<div className={'mb-5 input-group'}>
 					{/* Latitude */}
-					<span className="input-group-text" style={{ borderRadius: '0.25rem 0 0 0.25rem', borderRight: 'none' }}>Latitude</span>
+					<span
+						className="input-group-text"
+						style={{
+							borderRadius: '0.25rem 0 0 0.25rem',
+							borderRight: 'none'
+						}}
+					>
+						Latitude
+					</span>
 					<input
 						type="text"
+						disabled={this.state.loading}
 						className="form-control"
 						aria-label="Latitude"
 						style={{ borderRadius: '0', borderRight: 'none' }}
@@ -117,9 +147,18 @@ export class Weather extends Component {
 						onChange={this.handleLatitudeChange}
 					/>
 					{/* Longitude */}
-					<span className="input-group-text" style={{ borderRadius: '0', borderRight: 'none' }}>Longitude</span>
+					<span
+						className="input-group-text"
+						style={{
+							borderRadius: '0',
+							borderRight: 'none'
+						}}
+					>
+						Longitude
+					</span>
 					<input
 						type="text"
+						disabled={this.state.loading}
 						className="form-control"
 						aria-label="Longitude"
 						value={this.state.input.lon}
@@ -128,7 +167,8 @@ export class Weather extends Component {
 					{/* Retrieve */}
 					<button
 						type="button"
-						className={'btn btn-secondary'}
+						disabled={this.state.loading}
+						className={`${this.state.loading ? 'btn btn-outline-secondary' : 'btn btn-primary'}`}
 						onClick={this.handleRefreshClick}
 						style={{ borderRadius: '0 0.25rem 0.25rem 0' }}
 					>
@@ -171,7 +211,14 @@ export class Weather extends Component {
 
 	/// Life Cycle
 	componentDidMount() {
-		this.populateWeatherData();
+		this.setState({
+			...this.state,
+			input: {
+				lat: '0.000000',
+				lon: '0.000000',
+			},
+		})
+		this.populateWeatherData()
 	}
 
 	render() {
