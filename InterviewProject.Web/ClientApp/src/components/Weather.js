@@ -131,14 +131,13 @@ export class Weather extends Component {
 	/// Render Utils
 	renderForecastsControl() {
 		return (
-			<>
-				<div className={'mb-5 input-group'}>
+			<div className={'mb-4'}>
+				<div className={'input-group mb-3'}>
 					{/* Latitude */}
 					<span
 						className="input-group-text"
 						style={{
 							borderRadius: '0.25rem 0 0 0.25rem',
-							borderRight: 'none'
 						}}
 					>
 						Latitude
@@ -183,7 +182,27 @@ export class Weather extends Component {
 						Search
 					</button>
 				</div>
-			</>
+				<div className={'input-group mb-3'}>
+					{/* Latitude */}
+					<span
+						className="input-group-text"
+						style={{
+							borderRadius: '0.25rem 0 0 0.25rem',
+							borderRight: 'none'
+						}}
+					>
+						City
+					</span>
+					<input
+						readOnly
+						type="text"
+						value={`${this.state.weather.city.name} (${this.state.weather.city.coord.lat.toFixed(6)}, ${this.state.weather.city.coord.lon.toFixed(6)})`}
+						className="form-control"
+						aria-label="Latitude"
+						style={{ borderRadius: '0' }}
+					/>
+				</div>
+			</div>
 		)
 	}
 
