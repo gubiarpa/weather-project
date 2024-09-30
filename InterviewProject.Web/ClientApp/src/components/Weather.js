@@ -30,6 +30,7 @@ export class Weather extends Component {
 
 		/// Binding
 		this.handleRefreshClick = this.handleRefreshClick.bind(this);
+		this.handleInputClick = this.handleInputClick.bind(this);
 		this.handleLatitudeChange = this.handleLatitudeChange.bind(this);
 		this.handleLongitudeChange = this.handleLongitudeChange.bind(this);
 	}
@@ -58,6 +59,11 @@ export class Weather extends Component {
 			() => {
 				this.populateWeatherData();
 			})
+	}
+
+	handleInputClick(e) {
+		e.preventDefault();
+		e.target.select();
 	}
 
 	handleLatitudeChange(e) {
@@ -145,6 +151,7 @@ export class Weather extends Component {
 						style={{ borderRadius: '0', borderRight: 'none' }}
 						value={this.state.input.lat}
 						onChange={this.handleLatitudeChange}
+						onClick={this.handleInputClick}
 					/>
 					{/* Longitude */}
 					<span
@@ -163,6 +170,7 @@ export class Weather extends Component {
 						aria-label="Longitude"
 						value={this.state.input.lon}
 						onChange={this.handleLongitudeChange}
+						onClick={this.handleInputClick}
 					/>
 					{/* Retrieve */}
 					<button
